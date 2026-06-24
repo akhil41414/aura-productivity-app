@@ -5,12 +5,7 @@ import { FocusTimer } from './components/FocusTimer';
 import { TaskList } from './components/TaskList';
 import { CalendarView } from './components/CalendarView';
 import { processAuraCommand, type Task } from './services/gemini';
-import { 
-  Sparkles, 
-  Send, 
-  Key, 
-  X
-} from 'lucide-react';
+import { Sparkles, Send, Key, X } from 'lucide-react';
 
 const INITIAL_TASKS: Task[] = [
   {
@@ -63,19 +58,16 @@ export const App: React.FC = () => {
   const [isFocused, setIsFocused] = useState(false);
   const [showKeyModal, setShowKeyModal] = useState(false);
   
-  // Aura response feedback
   const [chatLog, setChatLog] = useState<{ sender: 'user' | 'aura'; text: string }[]>([
     { sender: 'aura', text: "Hello Bajolge Tarun. I am Aura. Type a command like 'Add a math test due Friday' and I will automatically structure sub-tasks, schedule it, and design a learning outline." }
   ]);
 
   const chatEndRef = useRef<HTMLDivElement>(null);
 
-  // Sync tasks to localstorage
   useEffect(() => {
     localStorage.setItem('aura_tasks', JSON.stringify(tasks));
   }, [tasks]);
 
-  // Scroll to bottom of chat
   useEffect(() => {
     chatEndRef.current?.scrollIntoView({ behavior: 'smooth' });
   }, [chatLog]);
@@ -89,7 +81,6 @@ export const App: React.FC = () => {
     setChatLog(prev => [...prev, { sender: 'aura', text: "Analyzing timeline conflicts... Reshuffling incomplete tasks to optimize free blocks." }]);
     
     setTimeout(() => {
-      // Shift uncompleted tasks forward in schedule
       setTasks(prev => prev.map(t => {
         if (!t.completed && t.id === 'task-2') {
           return { ...t, scheduledTime: 'Today 5:00 PM - 7:00 PM' };
@@ -133,7 +124,7 @@ export const App: React.FC = () => {
 
   return (
     <div className={`relative min-h-screen ${isFocused ? 'focus-active-aura' : ''}`}>
-      {/* Background gradients */}
+      {/* Liquid background */}
       <div className="aura-container">
         <div className="aura-blob aura-blob-cyan" />
         <div className="aura-blob aura-blob-pink" />
@@ -141,30 +132,28 @@ export const App: React.FC = () => {
       </div>
 
       {/* Main Glass Header */}
-      <header className="border-b border-white/5 bg-black/20 backdrop-blur-md sticky top-0 z-40">
-        <div className="max-w-7xl mx-auto px-6 h-16 flex items-center justify-between">
+      <header className="border-b border-white/5 bg-black/40 backdrop-blur-xl sticky top-0 z-40">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 h-20 flex items-center justify-between">
           <div className="flex items-center gap-3">
-            <div className="w-8 h-8 rounded-full bg-gradient-to-tr from-blue-500 to-purple-600 flex items-center justify-center shadow-[0_0_15px_rgba(124,58,237,0.4)]">
-              <Sparkles size={16} className="text-white" />
+            <div className="w-10 h-10 rounded-2xl bg-gradient-to-tr from-purple-600 via-purple-500 to-pink-500 flex items-center justify-center shadow-[0_0_20px_rgba(139,92,246,0.4)]">
+              <Sparkles size={20} className="text-white" />
             </div>
-            <span className="font-heading font-extrabold text-lg tracking-wider bg-gradient-to-r from-white via-slate-200 to-slate-400 bg-clip-text text-transparent">
+            <span className="font-heading font-extrabold text-xl tracking-[0.15em] bg-gradient-to-r from-white via-slate-200 to-slate-400 bg-clip-text text-transparent">
               AURA
             </span>
           </div>
 
-          <div className="flex items-center gap-4">
-            {/* Status indicator */}
-            <span className="hidden sm:inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-xs font-semibold bg-white/5 border border-white/10 text-slate-300">
+          <div className="flex items-center gap-3">
+            <span className="hidden md:inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full text-xs font-semibold bg-white/5 border border-white/10 text-slate-300">
               <span className={`w-1.5 h-1.5 rounded-full ${apiKey ? 'bg-green-500 animate-pulse' : 'bg-amber-500'}`} />
               {apiKey ? 'Google AI Studio Active' : 'Sandbox Demo Mode'}
             </span>
 
-            {/* API Key Configure Button */}
             <button
               onClick={() => setShowKeyModal(true)}
-              className="flex items-center gap-1.5 py-1.5 px-3 rounded-lg bg-zinc-900 border border-zinc-800 text-slate-300 hover:text-white hover:border-zinc-700 text-xs font-semibold transition-all"
+              className="flex items-center gap-1.5 py-2.5 px-4 rounded-xl bg-zinc-950/60 border border-white/10 text-slate-200 hover:text-white hover:border-white/20 text-xs font-semibold transition-all active:scale-95 shadow-[0_4px_12px_rgba(0,0,0,0.2)]"
             >
-              <Key size={13} />
+              <Key size={14} />
               <span>Configure AI Studio</span>
             </button>
           </div>
@@ -172,61 +161,62 @@ export const App: React.FC = () => {
       </header>
 
       {/* Main Grid Content */}
-      <main className="max-w-7xl mx-auto px-6 py-8">
-        <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 items-start">
+      <main className="max-w-7xl mx-auto px-4 sm:px-6 py-8">
+        <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 items-stretch">
           
-          {/* Left Column: Aura Pulser & Autonomous Chat Console (Span 5) */}
-          <div className="lg:col-span-5 space-y-6">
-            <div className="glass-panel p-6 relative overflow-hidden flex flex-col justify-between">
-              {/* Top accent */}
+          {/* Left Column: Aura Pulser & Autonomous Chat Console */}
+          <div className="lg:col-span-5 flex">
+            <div className="glass-panel p-6 relative overflow-hidden flex flex-col justify-between w-full">
               <div className="absolute top-0 left-0 w-full h-[2px] bg-gradient-to-r from-transparent via-blue-500/30 to-transparent" />
               
-              <div>
-                <AuraOrb isThinking={isThinking} isFocused={isFocused} />
-                
-                <h2 className="text-center font-heading font-bold text-2xl text-white tracking-wide mt-2">
-                  Aura Core
-                </h2>
-                <p className="text-center text-xs text-slate-400 max-w-xs mx-auto mt-1">
-                  Say a command like "Schedule my history essay preparation" or "Add workout session today".
-                </p>
-              </div>
+              <div className="flex-1 flex flex-col justify-between">
+                <div>
+                  <AuraOrb isThinking={isThinking} isFocused={isFocused} />
+                  
+                  <h2 className="text-center font-heading font-bold text-2xl text-white tracking-wide mt-2">
+                    Aura Core
+                  </h2>
+                  <p className="text-center text-xs text-slate-400 max-w-xs mx-auto mt-1">
+                    Your autonomous companion for execution planning.
+                  </p>
+                </div>
 
-              {/* Chat log view */}
-              <div className="my-6 border border-white/5 bg-zinc-950/30 rounded-xl p-4 h-48 overflow-y-auto space-y-3 scrollbar">
-                {chatLog.map((log, idx) => (
-                  <div 
-                    key={idx} 
-                    className={`flex ${log.sender === 'user' ? 'justify-end' : 'justify-start'}`}
-                  >
+                {/* Console Chat logs */}
+                <div className="my-6 border border-white/5 bg-black/30 rounded-2xl p-4 h-56 overflow-y-auto space-y-4 scrollbar">
+                  {chatLog.map((log, idx) => (
                     <div 
-                      className={`max-w-[85%] text-xs px-3.5 py-2.5 rounded-xl leading-relaxed ${
-                        log.sender === 'user'
-                          ? 'bg-purple-950/30 border border-purple-500/20 text-purple-200'
-                          : 'bg-zinc-900/60 border border-white/5 text-slate-300'
-                      }`}
+                      key={idx} 
+                      className={`flex ${log.sender === 'user' ? 'justify-end' : 'justify-start'}`}
                     >
-                      {log.text}
+                      <div 
+                        className={`max-w-[85%] text-xs px-4 py-3 rounded-2xl leading-relaxed ${
+                          log.sender === 'user'
+                            ? 'bg-gradient-to-tr from-purple-600 to-indigo-600 text-white shadow-[0_4px_15px_rgba(139,92,246,0.25)]'
+                            : 'bg-zinc-900/60 border border-white/5 text-slate-200'
+                        }`}
+                      >
+                        {log.text}
+                      </div>
                     </div>
-                  </div>
-                ))}
-                <div ref={chatEndRef} />
+                  ))}
+                  <div ref={chatEndRef} />
+                </div>
               </div>
 
-              {/* Chat Input Console */}
+              {/* Console Input */}
               <form onSubmit={handleSendCommand} className="flex gap-2">
                 <input
                   type="text"
                   value={inputCommand}
                   onChange={(e) => setInputCommand(e.target.value)}
-                  placeholder="Ask Aura to schedule something..."
+                  placeholder="Ask Aura to organize a task..."
                   className="flex-1 min-w-0"
                   disabled={isThinking}
                 />
                 <button
                   type="submit"
                   disabled={isThinking}
-                  className="w-12 h-12 rounded-xl bg-white text-black flex items-center justify-center hover:bg-slate-200 transition-colors disabled:opacity-50"
+                  className="w-12 h-12 rounded-xl bg-white text-black flex items-center justify-center hover:bg-slate-200 transition-all active:scale-95 disabled:opacity-50"
                 >
                   <Send size={16} />
                 </button>
@@ -234,35 +224,43 @@ export const App: React.FC = () => {
             </div>
           </div>
 
-          {/* Right Column: Intelligent Tasks & Schedule Layout (Span 7) */}
-          <div className="lg:col-span-7 space-y-6">
+          {/* Right Column: Intelligent Tasks & Schedule Layout */}
+          <div className="lg:col-span-7 space-y-8 flex flex-col justify-between">
             
-            {/* Pomodoro Timer & Focus Controller */}
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-              <FocusTimer isFocused={isFocused} onFocusChange={setIsFocused} />
-              <CalendarView tasks={tasks} />
+            {/* Top row: Focus Panel & Timeline */}
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-8 items-stretch">
+              <div className="flex">
+                <FocusTimer isFocused={isFocused} onFocusChange={setIsFocused} />
+              </div>
+              <div className="flex">
+                <CalendarView tasks={tasks} />
+              </div>
             </div>
 
             {/* Smart Task Board */}
-            <TaskList 
-              tasks={tasks} 
-              onToggleComplete={handleToggleComplete}
-              onReshuffle={handleReshuffle}
-            />
+            <div className="flex-1 flex">
+              <div className="w-full">
+                <TaskList 
+                  tasks={tasks} 
+                  onToggleComplete={handleToggleComplete}
+                  onReshuffle={handleReshuffle}
+                />
+              </div>
+            </div>
 
           </div>
         </div>
       </main>
 
-      {/* API Key Configurations Modal */}
+      {/* API Key Modal */}
       <AnimatePresence>
         {showKeyModal && (
-          <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/60 backdrop-blur-sm">
+          <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/70 backdrop-blur-md">
             <motion.div
               initial={{ opacity: 0, scale: 0.95 }}
               animate={{ opacity: 1, scale: 1 }}
               exit={{ opacity: 0, scale: 0.95 }}
-              className="glass-panel p-6 max-w-md w-full relative"
+              className="glass-panel p-6 max-w-md w-full relative border border-white/10"
             >
               <button
                 onClick={() => setShowKeyModal(false)}
@@ -294,7 +292,7 @@ export const App: React.FC = () => {
                       const input = document.getElementById('api-key-input') as HTMLInputElement;
                       saveApiKey(input?.value || '');
                     }}
-                    className="py-2 px-4 rounded-xl bg-purple-600 text-white font-semibold hover:bg-purple-500 text-sm transition-all"
+                    className="py-2.5 px-5 rounded-xl bg-purple-600 text-white font-bold hover:bg-purple-500 text-sm transition-all active:scale-95 shadow-[0_4px_12px_rgba(139,92,246,0.3)]"
                   >
                     Save & Initialize
                   </button>
