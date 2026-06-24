@@ -1,0 +1,204 @@
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Outfit:wght@400;500;600;700;800&display=swap');
+
+:root {
+  --font-sans: 'Inter', system-ui, -apple-system, sans-serif;
+  --font-heading: 'Outfit', var(--font-sans);
+  
+  /* Color Palette */
+  --bg-base: #03001e;
+  --panel-bg: rgba(10, 10, 25, 0.4);
+  --panel-border: rgba(255, 255, 255, 0.08);
+  --panel-border-hover: rgba(255, 255, 255, 0.15);
+  
+  --color-primary: #7c3aed; /* Purple */
+  --color-secondary: #ec4899; /* Pink */
+  --color-accent: #3b82f6; /* Blue */
+  --color-success: #10b981; /* Green */
+  
+  --text-primary: #ffffff;
+  --text-secondary: #94a3b8;
+  --text-muted: #64748b;
+  
+  --glow-cyan: rgba(59, 130, 246, 0.5);
+  --glow-pink: rgba(236, 72, 153, 0.5);
+  --glow-purple: rgba(124, 58, 237, 0.5);
+}
+
+* {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+body {
+  background-color: var(--bg-base);
+  color: var(--text-primary);
+  font-family: var(--font-sans);
+  overflow-x: hidden;
+  min-height: 100vh;
+}
+
+/* Custom Scrollbar */
+::-webkit-scrollbar {
+  width: 8px;
+}
+::-webkit-scrollbar-track {
+  background: rgba(255, 255, 255, 0.02);
+}
+::-webkit-scrollbar-thumb {
+  background: rgba(255, 255, 255, 0.1);
+  border-radius: 4px;
+}
+::-webkit-scrollbar-thumb:hover {
+  background: rgba(255, 255, 255, 0.2);
+}
+
+/* Aura Background Layers */
+.aura-container {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100vw;
+  height: 100vh;
+  z-index: -1;
+  overflow: hidden;
+  background: radial-gradient(circle at 50% 50%, #0c0824 0%, #03001e 100%);
+}
+
+.aura-blob {
+  position: absolute;
+  border-radius: 50%;
+  filter: blur(100px);
+  opacity: 0.45;
+  mix-blend-mode: screen;
+  pointer-events: none;
+}
+
+.aura-blob-cyan {
+  width: 50vw;
+  height: 50vw;
+  background: radial-gradient(circle, var(--glow-cyan) 0%, transparent 70%);
+  top: -10%;
+  left: -10%;
+  animation: float-cyan 25s infinite ease-in-out alternate;
+}
+
+.aura-blob-pink {
+  width: 60vw;
+  height: 60vw;
+  background: radial-gradient(circle, var(--glow-pink) 0%, transparent 70%);
+  bottom: -15%;
+  right: -10%;
+  animation: float-pink 30s infinite ease-in-out alternate;
+}
+
+.aura-blob-purple {
+  width: 45vw;
+  height: 45vw;
+  background: radial-gradient(circle, var(--glow-purple) 0%, transparent 70%);
+  top: 30%;
+  left: 30%;
+  animation: float-purple 22s infinite ease-in-out alternate;
+}
+
+@keyframes float-cyan {
+  0% { transform: translate(0, 0) scale(1); }
+  50% { transform: translate(15%, 10%) scale(1.1); }
+  100% { transform: translate(-5%, 5%) scale(0.95); }
+}
+
+@keyframes float-pink {
+  0% { transform: translate(0, 0) scale(1); }
+  50% { transform: translate(-10%, -15%) scale(0.9); }
+  100% { transform: translate(8%, -5%) scale(1.05); }
+}
+
+@keyframes float-purple {
+  0% { transform: translate(0, 0) scale(0.95); }
+  50% { transform: translate(-5%, 8%) scale(1.05); }
+  100% { transform: translate(10%, -8%) scale(1); }
+}
+
+/* Glassmorphism panel utility */
+.glass-panel {
+  background: var(--panel-bg);
+  backdrop-filter: blur(24px) saturate(160%);
+  -webkit-backdrop-filter: blur(24px) saturate(160%);
+  border: 1px solid var(--panel-border);
+  border-radius: 20px;
+  box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.37);
+  transition: border-color 0.3s ease, box-shadow 0.3s ease;
+}
+
+.glass-panel:hover {
+  border-color: var(--panel-border-hover);
+}
+
+/* Typography Utilities */
+.heading-gradient {
+  font-family: var(--font-heading);
+  background: linear-gradient(135deg, #ffffff 30%, var(--text-secondary) 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+}
+
+.heading-aura {
+  font-family: var(--font-heading);
+  background: linear-gradient(90deg, #3b82f6, #8b5cf6, #ec4899, #3b82f6);
+  background-size: 300% 100%;
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+  animation: aura-text-flow 8s linear infinite;
+}
+
+@keyframes aura-text-flow {
+  0% { background-position: 0% 50%; }
+  100% { background-position: 300% 50%; }
+}
+
+/* Custom UI Elements */
+input, textarea, select {
+  background: rgba(255, 255, 255, 0.05);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  color: white;
+  border-radius: 12px;
+  padding: 12px 16px;
+  font-family: var(--font-sans);
+  font-size: 14px;
+  transition: all 0.2s ease;
+  outline: none;
+}
+
+input:focus, textarea:focus, select:focus {
+  border-color: var(--color-primary);
+  box-shadow: 0 0 0 2px rgba(124, 58, 237, 0.25);
+  background: rgba(255, 255, 255, 0.08);
+}
+
+button {
+  cursor: pointer;
+  font-family: var(--font-sans);
+  font-weight: 500;
+  transition: all 0.2s ease;
+}
+
+/* Premium active glowing ring for state-driven items */
+.glow-card-active {
+  box-shadow: 0 0 25px rgba(124, 58, 237, 0.25), inset 0 0 10px rgba(124, 58, 237, 0.1);
+  border-color: rgba(124, 58, 237, 0.4);
+}
+
+/* Focus mode custom aura overlay */
+.focus-active-aura {
+  background: radial-gradient(circle at 50% 50%, rgba(124, 58, 237, 0.15) 0%, #03001e 100%);
+  animation: breathe-focus 6s infinite ease-in-out alternate;
+}
+
+@keyframes breathe-focus {
+  0% { opacity: 0.7; }
+  100% { opacity: 1; }
+}
