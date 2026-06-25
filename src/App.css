@@ -182,3 +182,221 @@
     border-right-color: var(--border);
   }
 }
+
+/* Phone Mockup Canvas CSS */
+.phone-mockup-wrapper {
+  max-width: 410px;
+  width: 100%;
+  height: 820px;
+  background-color: #000000;
+  border-radius: 44px;
+  position: relative;
+  overflow: hidden;
+  box-shadow: 0 25px 60px rgba(0,0,0,0.8), 0 0 0 8px #18181b, 0 0 40px rgba(139,92,246,0.1);
+  display: flex;
+  flex-direction: column;
+  margin: 0 auto;
+  border: 4px solid #09090b;
+}
+
+@media (max-width: 450px) {
+  .phone-mockup-wrapper {
+    max-width: 100%;
+    height: 100vh;
+    border-radius: 0;
+    border: none;
+    box-shadow: none;
+    margin: 0;
+  }
+}
+
+.phone-screen {
+  width: 100vw;
+  height: 100vh;
+  display: flex;
+  flex-direction: column;
+  position: relative;
+  overflow: hidden;
+  background: radial-gradient(circle at 50% 110%, #040615 0%, #000000 65%);
+}
+
+.chat-no-bg-message {
+  background: transparent !important;
+  border: none !important;
+  box-shadow: none !important;
+  padding: 0 !important;
+  color: var(--text-primary);
+}
+
+.glow-card-active {
+  box-shadow: 0 0 15px rgba(139, 92, 246, 0.25);
+}
+
+/* --------------------------------------
+   THE DINOSAUR LOGO (Permanent) 
+   -------------------------------------- */
+.animate-emoji-glow {
+  animation: emojiHueShift 6s linear infinite, dinoBreathe 3s ease-in-out infinite alternate;
+  transform-origin: center;
+  display: inline-block;
+}
+
+@keyframes emojiHueShift {
+  0% { filter: hue-rotate(0deg) saturate(1.3) drop-shadow(0 0 8px rgba(236, 72, 153, 0.5)); }
+  50% { filter: hue-rotate(180deg) saturate(1.3) drop-shadow(0 0 18px rgba(6, 182, 212, 0.6)); }
+  100% { filter: hue-rotate(360deg) saturate(1.3) drop-shadow(0 0 8px rgba(236, 72, 153, 0.5)); }
+}
+
+@keyframes dinoBreathe {
+  0% { transform: scale(0.93); }
+  100% { transform: scale(1.07); }
+}
+
+.dino-stop-1 {
+  animation: dinoShift1 8s ease infinite alternate;
+}
+.dino-stop-2 {
+  animation: dinoShift2 8s ease infinite alternate;
+}
+
+@keyframes dinoShift1 {
+  0% { stop-color: #4285F4; }
+  33% { stop-color: #EA4335; }
+  66% { stop-color: #FBBC04; }
+  100% { stop-color: #34A853; }
+}
+
+@keyframes dinoShift2 {
+  0% { stop-color: #EA4335; }
+  33% { stop-color: #FBBC04; }
+  66% { stop-color: #34A853; }
+  100% { stop-color: #4285F4; }
+}
+
+/* --------------------------------------
+   GLOW BACKGROUNDS (NO DOTS, NO WAVES)
+   -------------------------------------- */
+.bg-glow-blue {
+  background: radial-gradient(circle at 50% 115%, #0c1836 0%, #000000 55%);
+}
+
+.bg-glow-red {
+  background: radial-gradient(circle at 50% 115%, #3d081f 0%, #000000 55%);
+  transition: background 0.8s ease-in-out;
+}
+
+.bg-glow-red-high {
+  background: radial-gradient(circle at 50% 90%, #680d32 0%, #000000 75%) !important;
+}
+
+/* The Soft Gemini Star */
+.star-container {
+  width: 64px;
+  height: 64px;
+  margin-bottom: 24px;
+  animation: breathe 4s ease-in-out infinite alternate;
+  filter: drop-shadow(0px 0px 15px rgba(66, 133, 244, 0.3));
+}
+
+@keyframes breathe {
+  0% { transform: scale(1); filter: drop-shadow(0px 0px 10px rgba(66, 133, 244, 0.2)); }
+  100% { transform: scale(1.08); filter: drop-shadow(0px 0px 20px rgba(234, 67, 53, 0.45)); }
+}
+
+/* Semi-transparent Glass Keyboard Mockup Styles */
+.keyboard-wrapper {
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  width: 100%;
+  height: 290px;
+  background: rgba(20, 20, 25, 0.65);
+  backdrop-filter: blur(28px) saturate(140%);
+  -webkit-backdrop-filter: blur(28px) saturate(140%);
+  border-bottom-left-radius: 40px;
+  border-bottom-right-radius: 40px;
+  border-top: 1px solid rgba(255, 255, 255, 0.12);
+  transition: transform 0.4s cubic-bezier(0.16, 1, 0.3, 1);
+  z-index: 40;
+  display: flex;
+  flex-direction: column;
+  padding: 12px 8px 16px;
+}
+
+.key-row {
+  display: flex;
+  justify-content: center;
+  gap: 6px;
+  margin-bottom: 8px;
+  width: 100%;
+}
+
+.keyboard-key {
+  background: rgba(255, 255, 255, 0.09);
+  backdrop-filter: blur(6px);
+  -webkit-backdrop-filter: blur(6px);
+  border: 1px solid rgba(255, 255, 255, 0.06);
+  border-radius: 8px;
+  flex: 1;
+  height: 42px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: #ffffff;
+  font-size: 15px;
+  font-weight: 500;
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2), inset 0 1px 0 rgba(255, 255, 255, 0.1);
+  cursor: pointer;
+  user-select: none;
+  transition: background 0.15s, transform 0.15s, border-color 0.15s;
+}
+
+.keyboard-key:active {
+  background: rgba(255, 255, 255, 0.22);
+  border-color: rgba(255, 255, 255, 0.15);
+  transform: scale(0.93);
+}
+
+.keyboard-key.special {
+  background: rgba(255, 255, 255, 0.05);
+  border-color: rgba(255, 255, 255, 0.03);
+  font-size: 12px;
+  font-weight: 600;
+}
+
+/* Photo Scanner Animations */
+.animate-scanline {
+  animation: scanline 2.2s linear infinite;
+}
+
+@keyframes scanline {
+  0% {
+    top: 0%;
+    opacity: 0.8;
+  }
+  50% {
+    top: 100%;
+    opacity: 1;
+  }
+  100% {
+    top: 0%;
+    opacity: 0.8;
+  }
+}
+
+.animate-fadeIn {
+  animation: fadeIn 0.4s ease-out forwards;
+}
+
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(8px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+
