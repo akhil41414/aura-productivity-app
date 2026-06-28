@@ -562,9 +562,23 @@ Aura Security Assistant 🦖`
 // This lets one Cloud Run container serve both the API and the web app.
 import path from 'path';
 import { fileURLToPath } from 'url';
+import fs from 'fs';
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
-const frontendDist = path.join(__dirname, 'public');
+
+// Check multiple directories to support both local and AI Studio setups
+const distPath = path.join(__dirname, 'dist');
+const publicPath = path.join(__dirname, 'public');
+const parentDistPath = path.join(__dirname, '..', 'dist');
+
+let frontendDist = publicPath;
+if (fs.existsSync(distPath)) {
+  frontendDist = distPath;
+} else if (fs.existsSync(parentDistPath)) {
+  frontendDist = parentDistPath;
+}
+
+console.log(`[Static Files] Serving frontend assets from: ${frontendDist}`);
 app.use(express.static(frontendDist));
 app.get('*', (req, res, next) => {
   if (req.path.startsWith('/api/')) return next();
