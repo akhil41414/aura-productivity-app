@@ -272,9 +272,8 @@ export const App: React.FC = () => {
       setTasks(JSON.parse(savedTasks));
       setUserItem('aura_has_seeded', uid, 'true');
     } else if (newUser) {
-      // Genuinely brand-new account with zero history of any kind — seed a couple
-      // of sample tasks so the app isn't completely blank on first impression.
-      setTasks(DEFAULT_TASKS);
+      // Start completely empty for a clean slate
+      setTasks([]);
       setUserItem('aura_has_seeded', uid, 'true');
     } else {
       // Returning user whose tasks were cleared (e.g. via Reset Application Data) —
