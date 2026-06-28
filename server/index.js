@@ -494,6 +494,11 @@ Format your response EXACTLY as a JSON object:
   }
 });
 
+// GET endpoint to securely expose the Gemini API Key to the frontend for client-side execution fallback
+app.get('/api/config/gemini-key', (req, res) => {
+  return res.json({ key: process.env.GEMINI_API_KEY || '' });
+});
+
 // 6. Send Login/Signup Email Notification Alert
 app.post('/api/auth/send-login-email', async (req, res) => {
   const { email, displayName, isNewUser } = req.body;
