@@ -31,7 +31,8 @@ export interface UserScheduleProfile {
   coachingTone: CoachingTone;
 }
 
-const SERVER_URL = 'http://localhost:5000/api';
+const IS_PROD = !window.location.hostname.includes('localhost') && !window.location.hostname.includes('127.0.0.1');
+const SERVER_URL = IS_PROD ? 'https://aura-backend-se27.onrender.com/api' : 'http://localhost:5000/api';
 
 // Cache for recent chat commands to prevent duplicate API calls
 const chatCache = new Map<string, { reply: string; newTasks: Task[]; timestamp: number }>();

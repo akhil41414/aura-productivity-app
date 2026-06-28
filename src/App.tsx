@@ -285,7 +285,10 @@ export const App: React.FC = () => {
     const alertSent = sessionStorage.getItem(`aura_email_alert_sent_${uid}`);
     if (!alertSent && currentUser.email) {
       sessionStorage.setItem(`aura_email_alert_sent_${uid}`, 'true');
-      fetch('http://localhost:5000/api/auth/send-login-email', {
+      const IS_PROD = !window.location.hostname.includes('localhost') && !window.location.hostname.includes('127.0.0.1');
+      const backendUrl = IS_PROD ? 'https://aura-backend-se27.onrender.com' : 'http://localhost:5000';
+      
+      fetch(`${backendUrl}/api/auth/send-login-email`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
