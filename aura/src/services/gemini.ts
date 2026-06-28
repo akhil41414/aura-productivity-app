@@ -11,11 +11,8 @@ export interface Task {
   microplan?: string[]; // Proactive micro-plan actions if urgent
   isSomeday?: boolean; // Captures someday/maybe thoughts without schedule pressure
   energyLevel?: 'high_focus' | 'low_effort'; // Optional energy tagging
-  customReminderTime?: string; // Optional custom notification timestamp
   details?: string; // Original raw user message/context
 }
-
-
 
 export type CoachingTone = 'encouraging' | 'balanced' | 'aggressive';
 
@@ -304,8 +301,8 @@ export function parseDueDate(dueDateStr: string): Date {
     }
   }
   
-  // Clean ordinals (e.g. 27th -> 27) and strip 'at'
-  const cleanStr = normalized.replace(/(\d+)(st|nd|rd|th)/g, '$1').replace(/\s+at\s+/g, ' ').trim();
+  // Clean ordinals (e.g. 27th -> 27)
+  const cleanStr = normalized.replace(/(\d+)(st|nd|rd|th)/g, '$1').trim();
   const parsed = Date.parse(cleanStr);
   if (!isNaN(parsed)) {
     return new Date(parsed);

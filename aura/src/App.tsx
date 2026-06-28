@@ -28,14 +28,7 @@ import {
   createCalendarEvent,
   fetchClassroomAssignments
 } from './services/googleIntegrations';
-import {
-  requestNotificationPermission,
-  checkAndTriggerReminders,
-  extractCustomReminderTime,
-  getTaskDueDateTime
-} from './services/notificationService';
 import './App.css';
-
 
 export const App: React.FC = () => {
   const isDuplicateTask = (title: string, existingTasks: Task[]): boolean => {
@@ -138,8 +131,6 @@ export const App: React.FC = () => {
   const [lastReplanTime, setLastReplanTime] = useState<string>('');
   const [agentLogs, setAgentLogs] = useState<any[]>([]);
   const [quickWin, setQuickWin] = useState<{ taskTitle: string; stepTitle: string; guide: string; taskId: string } | null>(null);
-  const [highlightedTaskId, setHighlightedTaskId] = useState<string | null>(null);
-
   const [isReplanning, setIsReplanning] = useState(false);
 
   // Real Google Calendar / Classroom integration state (Agents screen)
@@ -165,7 +156,6 @@ export const App: React.FC = () => {
 
   // Timetable Schedule Profile
   const [timetableProfile, setTimetableProfile] = useState<UserScheduleProfile>(DEFAULT_TIMETABLE);
-  const [timetableConfigured, setTimetableConfigured] = useState(false);
   const adjustTextareaHeight = (element: HTMLTextAreaElement, maxHeight: number) => {
     element.style.height = 'auto';
     element.style.height = `${Math.min(element.scrollHeight, maxHeight)}px`;
@@ -270,38 +260,14 @@ export const App: React.FC = () => {
     const savedTasks = getUserItem('aura_tasks', uid);
     if (savedTasks) {
       setTasks(JSON.parse(savedTasks));
-      setUserItem('aura_has_seeded', uid, 'true');
     } else if (newUser) {
       // Genuinely brand-new account with zero history of any kind — seed a couple
       // of sample tasks so the app isn't completely blank on first impression.
       setTasks(DEFAULT_TASKS);
-      setUserItem('aura_has_seeded', uid, 'true');
     } else {
       // Returning user whose tasks were cleared (e.g. via Reset Application Data) —
       // respect that and stay empty. Do NOT silently reseed the demo sample tasks.
       setTasks([]);
-    }
-
-    // Trigger Login Email Alert (only once per browser tab session to avoid spamming)
-    const alertSent = sessionStorage.getItem(`aura_email_alert_sent_${uid}`);
-    if (!alertSent && currentUser.email) {
-      sessionStorage.setItem(`aura_email_alert_sent_${uid}`, 'true');
-      fetch('http://localhost:5000/api/auth/send-login-email', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          email: currentUser.email,
-          displayName: currentUser.displayName,
-          isNewUser: newUser
-        })
-      })
-      .then(res => res.json())
-      .then(data => {
-        console.log('[Email Alert] Triggered alert:', data);
-      })
-      .catch(err => {
-        console.error('[Email Alert] Failed to trigger email alert:', err);
-      });
     }
 
     const savedArchived = getUserItem('aura_archived_chats', uid);
@@ -309,9 +275,6 @@ export const App: React.FC = () => {
 
     const savedTimetable = getUserItem('aura_timetable_profile', uid);
     setTimetableProfile(savedTimetable ? JSON.parse(savedTimetable) : DEFAULT_TIMETABLE);
-
-    const savedConfigured = getUserItem('aura_timetable_configured', uid);
-    setTimetableConfigured(savedConfigured === 'true');
 
     const savedAgentLogs = getUserItem('aura_agent_logs', uid);
     setAgentLogs(savedAgentLogs ? JSON.parse(savedAgentLogs) : []);
@@ -373,52 +336,7 @@ export const App: React.FC = () => {
     setUserItem('aura_tasks', currentUser.uid, JSON.stringify(tasks));
   }, [tasks, hydrated, currentUser]);
 
-  // ============================================================================
-  // NOTIFICATIONS: request permission on load, check reminders on task list
-  // change and periodically.
-  // ============================================================================
-  useEffect(() => {
-    requestNotificationPermission();
-  }, []);
-
-  useEffect(() => {
-    if (highlightedTaskId) {
-      const timer = setTimeout(() => {
-        setHighlightedTaskId(null);
-      }, 4000);
-      return () => clearTimeout(timer);
-    }
-  }, [highlightedTaskId]);
-
-  useEffect(() => {
-    const triggerTask = (task: Task) => {
-      setActiveScreen('tasks');
-      setTasksTab(task.isSomeday ? 'someday' : 'active');
-      setHighlightedTaskId(task.id);
-      
-      setTimeout(() => {
-        const el = document.getElementById(`task-card-${task.id}`);
-        if (el) {
-          el.scrollIntoView({ behavior: 'smooth', block: 'center' });
-        }
-      }, 300);
-    };
-
-    if (hydrated) {
-      checkAndTriggerReminders(tasks, currentUser ? currentUser.uid : null, triggerTask);
-    }
-
-    const interval = setInterval(() => {
-      if (hydrated) {
-        checkAndTriggerReminders(tasks, currentUser ? currentUser.uid : null, triggerTask);
-      }
-    }, 30000);
-
-    return () => clearInterval(interval);
-  }, [tasks, currentUser?.uid, hydrated]);
-
   // The Gemini API key lives only in the server's .env now — there is no
-
   // client-side override anymore (this used to be settable in Settings).
   const apiKey: string = '';
 
@@ -1024,21 +942,9 @@ export const App: React.FC = () => {
       }]);
 
       if (response.newTasks && response.newTasks.length > 0) {
-        // Parse custom reminder time from userText if present
-        const firstTask = response.newTasks[0];
-        const baseDue = getTaskDueDateTime(firstTask);
-        const customRem = extractCustomReminderTime(userText, baseDue);
-
-        const tasksWithReminders = response.newTasks.map(t => {
-          if (customRem) {
-            return { ...t, customReminderTime: customRem.toISOString() };
-          }
-          return t;
-        });
-
         // Auto-insert scheduled study blocks for new tasks (with deduplication) (Bug 1 & Bug B)
         setTasks(prev => {
-          const uniqueNewTasks = tasksWithReminders.filter(t => !isDuplicateTask(t.title, prev));
+          const uniqueNewTasks = response.newTasks.filter(t => !isDuplicateTask(t.title, prev));
           if (uniqueNewTasks.length === 0) return prev;
           const next = [...uniqueNewTasks, ...prev];
           setTimeout(() => triggerAgentReplan(next), 500);
@@ -1964,25 +1870,6 @@ export const App: React.FC = () => {
                     <span>Onboarding Timetable</span>
                   </h2>
 
-                  {/* Status Banner */}
-                  {timetableConfigured ? (
-                    <div className="bg-emerald-950/20 border border-emerald-500/25 rounded-xl p-3 text-xs text-emerald-400 flex items-start gap-2 animate-fadeIn">
-                      <span className="shrink-0 text-emerald-500 mt-0.5">✅</span>
-                      <div>
-                        <div className="font-bold">Timetable active and configured</div>
-                        <div className="text-[10px] text-emerald-500/80 mt-0.5">Saved! Aura is using these times to schedule your study blocks and task prioritizations.</div>
-                      </div>
-                    </div>
-                  ) : (
-                    <div className="bg-amber-950/20 border border-amber-500/25 rounded-xl p-3 text-xs text-amber-400 flex items-start gap-2 animate-pulse">
-                      <span className="shrink-0 text-amber-500 mt-0.5">⚠️</span>
-                      <div>
-                        <div className="font-bold">Timetable not configured yet</div>
-                        <div className="text-[10px] text-amber-500/80 mt-0.5">Aura is currently using default generic times. Please adjust and save your timetable below so Aura can fit study blocks avoiding your busy times!</div>
-                      </div>
-                    </div>
-                  )}
-
                   <div className="bg-white/5 border border-white/10 rounded-2xl p-4.5 space-y-4">
                     <div className="flex flex-col">
                       <label className="text-[10px] text-slate-400 font-bold uppercase tracking-wider mb-1">Select Role</label>
@@ -2073,10 +1960,6 @@ export const App: React.FC = () => {
                   <button 
                     type="button"
                     onClick={() => {
-                      if (currentUser) {
-                        setUserItem('aura_timetable_configured', currentUser.uid, 'true');
-                      }
-                      setTimetableConfigured(true);
                       alert("Timetable profile configured! Aura will fit study blocks avoiding these busy times.");
                       setActiveScreen('chat');
                     }}
@@ -2141,11 +2024,6 @@ export const App: React.FC = () => {
                         scheduledTime: 'Today 7:00 PM - 8:00 PM',
                         studyGuide: '• Review fundamentals\n• Dedicate 45 minutes of silent work.'
                       };
-                      const baseDue = getTaskDueDateTime(newTask);
-                      const customRem = extractCustomReminderTime(input.value, baseDue);
-                      if (customRem) {
-                        newTask.customReminderTime = customRem.toISOString();
-                      }
                       setTasks(prev => {
                         if (isDuplicateTask(newTask.title, prev)) {
                           return prev;
@@ -2222,10 +2100,8 @@ export const App: React.FC = () => {
                           const isFirm = !task.completed && hours <= 48 && hours > 12;
                           const isTopUrgent = !task.completed && topUrgentIds.has(task.id);
 
-                          let cardClass = "aura-card p-4 transition-all duration-300 ";
-                          if (highlightedTaskId === task.id) {
-                            cardClass += "ring-2 ring-purple-500 scale-[1.02] bg-purple-950/30 shadow-[0_0_15px_rgba(139,92,246,0.3)]";
-                          } else if (task.completed) {
+                          let cardClass = "aura-card p-4 transition-all ";
+                          if (task.completed) {
                             cardClass += "bg-zinc-950/20 border-white/5 opacity-40";
                           } else if (isTopUrgent && isLastMinute) {
                             cardClass += "bg-[#20080f] border-red-500/80 shadow-[0_0_15px_rgba(239,68,68,0.25)] animate-pulse";
@@ -2236,7 +2112,7 @@ export const App: React.FC = () => {
                           }
 
                           return (
-                            <div key={task.id} id={`task-card-${task.id}`} className={cardClass}>
+                            <div key={task.id} className={cardClass}>
                               <div className="flex items-start gap-3">
                                 <input 
                                   type="checkbox" 
@@ -2363,17 +2239,13 @@ export const App: React.FC = () => {
                     )}
 
                     {/* Squeezed task block late evening */}
-                    {tasks.filter(t => !t.completed && (t.scheduledTime?.includes('4:30 PM') || t.scheduledTime?.includes('6:30 PM') || t.scheduledTime?.includes('5:00 PM'))).map(t => (
-                      <div key={t.id} className="aura-card p-3.5 flex gap-4 bg-purple-950/20 border-purple-500/35 shadow-[0_0_15px_rgba(139,92,246,0.1)]">
-                        <div className="text-[10px] font-bold text-purple-400 w-14 shrink-0">
-                          {t.scheduledTime?.includes('4:30 PM') ? '04:30 PM' : t.scheduledTime?.includes('5:00 PM') ? '05:00 PM' : '06:30 PM'}
-                        </div>
-                        <div className="flex-1">
-                          <div className="text-xs font-bold text-slate-200">{t.title}</div>
-                          <div className="text-[9px] text-purple-300 mt-0.5 font-semibold font-sans">Aura Allocated Study Session • {t.duration}</div>
-                        </div>
+                    <div className="aura-card p-3.5 flex gap-4 bg-purple-950/20 border-purple-500/35 shadow-[0_0_15px_rgba(139,92,246,0.1)]">
+                      <div className="text-[10px] font-bold text-purple-400 w-14 shrink-0">06:30 PM</div>
+                      <div className="flex-1">
+                        <div className="text-xs font-bold text-slate-200">Physics Lab Outline & Formulas</div>
+                        <div className="text-[9px] text-purple-300 mt-0.5 font-semibold font-sans">Aura Allocated Study Session • 1.5 hours</div>
                       </div>
-                    ))}
+                    </div>
 
                     {/* Free space */}
                     <div className="aura-card p-3.5 flex gap-4 bg-white/5 border-white/5 hover:border-purple-500/20">
@@ -2972,16 +2844,7 @@ export const App: React.FC = () => {
                               removeUserItem('aura_productivity_insights', uid);
                               removeUserItem('aura_last_replan_time', uid);
                               removeUserItem('aura_last_replan_timestamp', uid);
-                              removeUserItem('aura_timetable_configured', uid);
-                              removeUserItem('aura_timetable_profile', uid);
                               
-                              // Keep aura_has_seeded as true so it doesn't re-seed demo tasks on refresh
-                              if (uid) {
-                                setUserItem('aura_has_seeded', uid, 'true');
-                              }
-                              
-                              setTimetableConfigured(false);
-                              setTimetableProfile(DEFAULT_TIMETABLE);
                               setTasks([]);
                               setChatLog([]);
                               setArchivedChats([]);
