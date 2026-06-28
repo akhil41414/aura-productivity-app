@@ -436,6 +436,10 @@ export const App: React.FC = () => {
 
   const handleSignOut = async () => {
     try {
+      const uid = currentUser?.uid;
+      if (uid) {
+        sessionStorage.removeItem(`aura_email_alert_sent_${uid}`);
+      }
       await signOutUser();
     } catch (err) {
       console.error('[Auth] Sign-out failed:', err);
