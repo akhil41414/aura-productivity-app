@@ -525,7 +525,8 @@ app.post('/api/auth/send-login-email', async (req, res) => {
       auth: {
         user: smtpUser,
         pass: smtpPass
-      }
+      },
+      family: 4 // Force IPv4 to bypass Render's lack of IPv6 outbound connections
     });
 
     const mailOptions = {
